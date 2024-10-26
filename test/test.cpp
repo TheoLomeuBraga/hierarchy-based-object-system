@@ -1,39 +1,36 @@
 #include <iostream>
-#include "object.h"
+#include "node_register.h"
 
-class Person : public Object{
+class Person : public Node
+{
 public:
     std::string name;
     int age;
-
-    std::any identfy(std::vector<std::any> args){
-        std::cout << name << " " << age << std::endl;
-        return NULL;
-    }
-
-    Person(std::string name , int age){
+    Person(std::string name, int age) : Node("Person")
+    {
         this->name = name;
         this->age = age;
+    }
 
-        register_variable("name",&this->name);
-        register_variable("age",&this->age);
-
-        
-        register_function("identfy",std::bind(&Person::identfy,this,std::placeholders::_1));
-
-        
-        //std::bind(&Person::identfy,this)();
+    std::string to_string()
+    {
+        return std::string("name: ") + name + ". age: " + std::to_string(age);
     }
 };
 
-int main() {
+std::string Person_to_string(Node *n)
+{
+    return ((Person*)n)->to_string();
+}
 
-    Object *obj = new Person("alan",29);
-    obj->call("identfy",{});
-    obj->set<std::string>("name","adam");
-    obj->set<int>("age",23);
-    std::cout << obj->get<std::string>("name") << " " << obj->get<int>("age") << std::endl;
-    delete obj;
-    
+
+Register personRegister("Person",{Person_to_string});
+
+int main()
+{
+    Person p("alan",32);
+    std::cout << Node::to_string(&p) << std::endl;
+
+
     return 0;
 }
